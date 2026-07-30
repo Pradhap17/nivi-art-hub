@@ -59,14 +59,34 @@ function ContactFormContent() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
+  const generateWhatsAppUrl = () => {
+    const lines = [
+      "Hello Nivi Art Hub, I would like to place a Custom Art Request!",
+      "",
+      `*Full Name:* ${formData.fullName}`,
+      `*Email:* ${formData.email}`,
+      `*Phone / WhatsApp:* ${formData.phone}`,
+      `*City:* ${formData.city}`,
+      `*Service Required:* ${formData.serviceRequired}`,
+      `*Estimated Budget:* ${formData.budget}`,
+      `*Timeline Needed:* ${formData.timeline}`,
+    ];
+
+    if (referenceFileName) {
+      lines.push(`*Reference Photo Uploaded:* ${referenceFileName}`);
+    }
+
+    lines.push("", `*Project Description / Personalization Notes:*`, formData.projectDescription);
+
+    const msg = lines.join("\n");
+    return `https://wa.me/${SITE_INFO.whatsappNumber}?text=${encodeURIComponent(msg)}`;
   };
 
-  const generateWhatsAppMessage = () => {
-    const msg = `Hello Nivi Art Hub,\n\nI want to place a custom art request!\n*Name:* ${formData.fullName}\n*Service:* ${formData.serviceRequired}\n*City:* ${formData.city}\n*Phone:* ${formData.phone}\n*Budget:* ${formData.budget}\n*Details:* ${formData.projectDescription}`;
-    return `https://wa.me/${SITE_INFO.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = generateWhatsAppUrl();
+    window.open(url, "_blank");
+    setSubmitted(true);
   };
 
   return (
@@ -273,8 +293,8 @@ function ContactFormContent() {
                   type="submit"
                   className="w-full btn-primary py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.01] transition-transform"
                 >
-                  <Send className="w-5 h-5" />
-                  <span>Submit Custom Order Request</span>
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Submit Custom Order Request via WhatsApp</span>
                 </button>
               </motion.form>
             ) : (
@@ -282,29 +302,50 @@ function ContactFormContent() {
                 key="success"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="py-12 text-center space-y-6"
+                className="py-8 text-center space-y-6"
               >
                 <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center shadow-lg">
                   <CheckCircle2 className="w-10 h-10 animate-bounce" />
                 </div>
+
                 <div className="space-y-2">
                   <h3 className="text-2xl font-bold font-poppins text-gray-900">
                     Thank You, {formData.fullName}!
                   </h3>
                   <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-                    Your inquiry for <strong className="text-gray-900">{formData.serviceRequired}</strong> has been logged! Artist Surya will review your request shortly.
+                    Your inquiry details for <strong className="text-gray-900">{formData.serviceRequired}</strong> have been compiled and sent directly to Artist Surya on WhatsApp!
                   </p>
                 </div>
 
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                {/* Inquiry Summary Box */}
+                <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100 space-y-2 text-xs text-gray-600">
+                  <div className="flex justify-between border-b border-gray-200 pb-2">
+                    <span className="font-semibold text-gray-800">Customer Name:</span>
+                    <span>{formData.fullName}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2">
+                    <span className="font-semibold text-gray-800">Service Required:</span>
+                    <span>{formData.serviceRequired}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2">
+                    <span className="font-semibold text-gray-800">Budget & Timeline:</span>
+                    <span>{formData.budget} • {formData.timeline}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-gray-800">City / Phone:</span>
+                    <span>{formData.city} ({formData.phone})</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
-                    href={generateWhatsAppMessage()}
+                    href={generateWhatsAppUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-md transform hover:scale-105 transition-transform"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    <span>Send details via WhatsApp Now</span>
+                    <span>Re-open WhatsApp Chat</span>
                   </a>
                   <button
                     onClick={() => setSubmitted(false)}
